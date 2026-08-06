@@ -7,9 +7,15 @@ Project TITAN is a self-hosted 3D-printing CRM and business operating platform.
 ### Ubuntu
 
 ```bash
+
+sudo apt update
+sudo apt install -y git curl ca-certificates unzip openssl
 git clone https://github.com/jrmediagroupvan/Project-Titan.git
 cd Project-Titan
+sudo chown -R user:user .
+chmod +x install.sh install/*.sh scripts/titan scripts/*.sh
 sudo ./install.sh
+
 ```
 
 ### Windows
