@@ -24,11 +24,14 @@
 ```bash
 sudo apt update
 sudo apt install -y git curl ca-certificates unzip openssl
-cd /home/user
-git clone https://github.com/jrmediagroupvan/Project-Titan.git Project-Titan
+
+git clone https://github.com/jrmediagroupvan/Project-Titan.git
 cd Project-Titan
-sudo chown -R user:user .
+
+sudo chown -R "$(id -un):$(id -gn)" .
+
 chmod +x install.sh install/*.sh scripts/titan scripts/*.sh
+
 sudo ./install.sh
 ```
 
