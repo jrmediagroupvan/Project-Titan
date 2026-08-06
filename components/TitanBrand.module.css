@@ -1,0 +1,129 @@
+.brand {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  min-height: 118px;
+  place-items: center;
+  overflow: visible;
+  padding: 2px 4px 0;
+}
+
+.glow {
+  position: absolute;
+  z-index: -1;
+  width: 170px;
+  height: 86px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle,
+    rgba(49, 183, 255, 0.48),
+    rgba(49, 183, 255, 0.16) 42%,
+    transparent 72%
+  );
+  filter: blur(17px);
+  pointer-events: none;
+  animation: titanGlowPulse 2.7s ease-in-out infinite alternate;
+}
+
+.logo {
+  display: block;
+  width: min(100%, 214px);
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  transform-origin: center;
+  will-change: transform, opacity, filter;
+  animation:
+    titanLogoFloat 4.2s ease-in-out infinite,
+    titanLogoPulse 2.7s ease-in-out infinite alternate;
+}
+
+.tagline {
+  margin-top: -2px;
+  color: var(--titan-accent);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-align: center;
+  text-transform: uppercase;
+  text-shadow: 0 0 14px var(--titan-accent-soft);
+}
+
+.compact {
+  display: grid;
+  width: 48px;
+  min-height: 48px;
+  flex: 0 0 48px;
+  padding: 0;
+}
+
+.compact .logo {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  animation-duration: 4.8s, 3.1s;
+}
+
+.compact .glow {
+  width: 56px;
+  height: 42px;
+  filter: blur(12px);
+}
+
+@keyframes titanLogoFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.35deg);
+  }
+
+  50% {
+    transform: translateY(-5px) rotate(0.35deg);
+  }
+}
+
+@keyframes titanLogoPulse {
+  from {
+    opacity: 0.9;
+    filter:
+      drop-shadow(0 0 7px rgba(49, 183, 255, 0.42))
+      drop-shadow(0 0 18px rgba(49, 183, 255, 0.18));
+  }
+
+  to {
+    opacity: 1;
+    filter:
+      drop-shadow(0 0 12px rgba(49, 183, 255, 0.76))
+      drop-shadow(0 0 32px rgba(49, 183, 255, 0.34));
+  }
+}
+
+@keyframes titanGlowPulse {
+  from {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 0.92;
+    transform: scale(1.12);
+  }
+}
+
+@media (max-width: 760px) {
+  .brand {
+    min-height: 100px;
+  }
+
+  .logo {
+    width: min(100%, 190px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo,
+  .glow {
+    animation: none;
+  }
+}

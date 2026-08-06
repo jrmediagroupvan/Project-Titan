@@ -1,0 +1,1196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MANAGER
+  STAFF
+  PRODUCTION
+  ACCOUNTING
+  VIEWER
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  VIEWED
+  APPROVED
+  DECLINED
+  EXPIRED
+  INVOICED
+}
+
+enum OrderStatus {
+  AWAITING_PAYMENT
+  PAID
+  QUEUED
+  PRINTING
+  QUALITY_CHECK
+  READY
+  SHIPPED
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum ExpenseStatus {
+  DRAFT
+  APPROVED
+  PAID
+  VOID
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+  FAILED
+  CANCELLED
+}
+
+enum ShipmentStatus {
+  DRAFT
+  LABEL_CREATED
+  IN_TRANSIT
+  DELIVERED
+  EXCEPTION
+  CANCELLED
+}
+
+enum MessageDirection {
+  INBOUND
+  OUTBOUND
+  INTERNAL
+}
+
+enum MessageChannel {
+  EMAIL
+  SMS
+  PORTAL
+  INTERNAL
+}
+
+enum PermissionKey {
+  AI_STL_VIEW
+  AI_STL_CREATE
+  AI_STL_EDIT
+  AI_STL_DELETE
+  AI_STL_EXPORT
+  AI_CHAT_VIEW
+  AI_CHAT_CREATE
+  AI_CHAT_DELETE
+  AI_IMAGES_CREATE
+  AI_CRM_SEARCH
+  AI_WEB_SEARCH
+  AI_PRICING_USE
+  AI_FILES_ANALYZE
+  AI_ACTIONS_PROPOSE
+  AI_ACTIONS_APPROVE
+  CUSTOMERS_VIEW
+  CUSTOMERS_CREATE
+  CUSTOMERS_EDIT
+  CUSTOMERS_DELETE
+  QUOTES_VIEW
+  QUOTES_CREATE
+  QUOTES_EDIT
+  QUOTES_DELETE
+  ORDERS_VIEW
+  ORDERS_CREATE
+  ORDERS_EDIT
+  ORDERS_DELETE
+  PRODUCTION_VIEW
+  PRODUCTION_CREATE
+  PRODUCTION_EDIT
+  PRODUCTION_DELETE
+  INVENTORY_VIEW
+  INVENTORY_CREATE
+  INVENTORY_EDIT
+  INVENTORY_DELETE
+  TASKS_VIEW
+  TASKS_CREATE
+  TASKS_EDIT
+  TASKS_DELETE
+  EXPENSES_VIEW
+  EXPENSES_CREATE
+  EXPENSES_EDIT
+  EXPENSES_DELETE
+  REPORTS_VIEW
+  PORTAL_VIEW
+  PORTAL_CREATE
+  PORTAL_EDIT
+  PORTAL_DELETE
+  EMAIL_VIEW
+  EMAIL_CREATE
+  EMAIL_EDIT
+  EMAIL_DELETE
+  UPLOADS_VIEW
+  UPLOADS_CREATE
+  UPLOADS_EDIT
+  UPLOADS_DELETE
+  PRICING_VIEW
+  PRICING_CREATE
+  PRICING_EDIT
+  PRICING_DELETE
+  USERS_VIEW
+  USERS_CREATE
+  USERS_EDIT
+  USERS_DELETE
+  USERS_MANAGE
+  INTEGRATIONS_VIEW
+  INTEGRATIONS_MANAGE
+  AUDIT_VIEW
+}
+
+enum EmailProvider {
+  GOOGLE
+  SMTP
+}
+
+enum EmailQuoteDraftStatus {
+  NEEDS_REVIEW
+  READY
+  QUOTE_CREATED
+  SENT
+  DISMISSED
+}
+
+enum PriceSourceType {
+  JSON_FEED
+  MANUAL
+}
+
+enum CustomerAccessMode {
+  ALL
+  ASSIGNED
+}
+
+enum FeatureAccessMode {
+  ALL
+  ASSIGNED
+}
+
+enum FeatureCategory {
+  DASHBOARD
+  AI_STL_DEVELOPER
+  AI_ASSISTANT
+  CUSTOMERS
+  CUSTOMER_PORTAL
+  EMAIL
+  QUOTES
+  ORDERS
+  UPLOADS
+  PRODUCTION
+  INVENTORY
+  MARKET_PRICING
+  TASKS
+  EXPENSES
+  REPORTS
+  INTEGRATIONS
+  ACTIVITY
+  SETTINGS
+  USER_MANAGEMENT
+}
+
+enum AiMessageRole {
+  USER
+  ASSISTANT
+}
+
+enum AiActionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  FAILED
+}
+
+model User {
+  id                     String                @id @default(cuid())
+  name                   String
+  email                  String                @unique
+  passwordHash           String
+  role                   Role                  @default(STAFF)
+  active                 Boolean               @default(true)
+  jobTitle               String?
+  phone                  String?
+  avatarUrl              String?
+  mustChangePassword     Boolean               @default(false)
+  lastLoginAt            DateTime?
+  createdAt              DateTime              @default(now())
+  updatedAt              DateTime              @updatedAt
+  tasks                  Task[]                @relation("AssignedTasks")
+  createdTasks           Task[]                @relation("CreatedTasks")
+  auditEvents            AuditEvent[]
+  permissions            UserPermission[]
+  emailAccounts          EmailAccount[]
+  mailboxAccess          MailboxAccess[]
+  emailQuoteDrafts       EmailQuoteDraft[]
+  customerAccessMode     CustomerAccessMode    @default(ALL)
+  assignedCustomers      Customer[]            @relation("CustomerAssignee")
+  featureAccessMode      FeatureAccessMode     @default(ASSIGNED)
+  featureCategories      UserFeatureCategory[]
+  aiConversations        AiConversation[]
+  aiImages               AiGeneratedImage[]
+  aiStlDesigns           AiStlDesign[]
+  forgeProjects          ForgeProject[]
+  passwordResetTokens    PasswordResetToken[]
+  aiSetting              AiUserSetting?
+  proposedAiActions      AiActionProposal[]    @relation("AiActionProposer")
+  reviewedAiActions      AiActionProposal[]    @relation("AiActionReviewer")
+  aiToolRuns             AiToolRun[]
+  createdCalendarEvents  CalendarEvent[]       @relation("CalendarEventCreator")
+  assignedCalendarEvents CalendarEvent[]       @relation("CalendarEventAssignee")
+  twoFactorCredential   TwoFactorCredential?
+  recoveryCodes         RecoveryCode[]
+  trustedDevices        TrustedDevice[]
+  loginAttempts         LoginAttempt[]
+}
+
+model AiUserSetting {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  useServerConfig Boolean  @default(true)
+  encryptedJson   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AiConversation {
+  id        String             @id @default(cuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  messages  AiMessage[]
+  toolRuns  AiToolRun[]
+  actions   AiActionProposal[]
+
+  @@index([userId, updatedAt])
+}
+
+model AiToolRun {
+  id             String          @id @default(cuid())
+  conversationId String?
+  conversation   AiConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  toolName       String
+  success        Boolean         @default(true)
+  durationMs     Int             @default(0)
+  inputJson      Json?
+  outputSummary  String?
+  scopeKey       String?
+  createdAt      DateTime        @default(now())
+
+  @@index([conversationId, createdAt])
+  @@index([userId, createdAt])
+  @@index([scopeKey, createdAt])
+}
+
+model AiActionProposal {
+  id             String          @id @default(cuid())
+  conversationId String?
+  conversation   AiConversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  proposedById   String
+  proposedBy     User            @relation("AiActionProposer", fields: [proposedById], references: [id], onDelete: Cascade)
+  reviewedById   String?
+  reviewedBy     User?           @relation("AiActionReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  actionType     String
+  title          String
+  description    String
+  payload        Json
+  status         AiActionStatus  @default(PENDING)
+  resultSummary  String?
+  reviewedAt     DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([proposedById, status, createdAt])
+  @@index([status, createdAt])
+}
+
+model AiMessage {
+  id             String         @id @default(cuid())
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           AiMessageRole
+  content        String
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+model AiGeneratedImage {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt     String
+  storageKey String
+  mimeType   String   @default("image/png")
+  bytes      Int
+  model      String
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model AiStlDesign {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  title      String
+  prompt     String
+  summary    String?
+  designJson Json
+  storageKey String
+  bytes      Int
+  dimensions Json
+  provider   String
+  model      String
+  revision   Int       @default(1)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId, updatedAt])
+  @@index([customerId, updatedAt])
+}
+
+model UserFeatureCategory {
+  id        String          @id @default(cuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category  FeatureCategory
+  createdAt DateTime        @default(now())
+
+  @@unique([userId, category])
+  @@index([userId])
+}
+
+model UserPermission {
+  id         String        @id @default(cuid())
+  userId     String
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission PermissionKey
+  allowed    Boolean       @default(true)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([userId, permission])
+  @@index([userId])
+}
+
+model EmailAccount {
+  id                    String            @id @default(cuid())
+  ownerId               String
+  owner                 User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  provider              EmailProvider     @default(GOOGLE)
+  emailAddress          String
+  displayName           String?
+  encryptedAccessToken  String?
+  encryptedRefreshToken String?
+  tokenExpiresAt        DateTime?
+  scopes                String?
+  providerPreset        String?
+  smtpHost              String?
+  smtpPort              Int?
+  smtpSecure            Boolean           @default(true)
+  smtpUsername          String?
+  encryptedSmtpPassword String?
+  imapEnabled           Boolean           @default(true)
+  imapHost              String?
+  imapPort              Int?
+  imapSecure            Boolean           @default(true)
+  imapUsername          String?
+  encryptedImapPassword String?
+  replyTo               String?
+  signature             String?
+  allowSelfSigned       Boolean           @default(false)
+  isTeamMailbox         Boolean           @default(false)
+  active                Boolean           @default(true)
+  lastSyncAt            DateTime?
+  quoteScanEnabled      Boolean           @default(false)
+  quoteForwardTo        String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  access                MailboxAccess[]
+  quoteDrafts           EmailQuoteDraft[]
+
+  @@unique([provider, emailAddress])
+  @@index([ownerId])
+}
+
+model MailboxAccess {
+  id             String       @id @default(cuid())
+  emailAccountId String
+  emailAccount   EmailAccount @relation(fields: [emailAccountId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canRead        Boolean      @default(true)
+  canSend        Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  @@unique([emailAccountId, userId])
+  @@index([userId])
+}
+
+model EmailQuoteDraft {
+  id                String                @id @default(cuid())
+  ownerId           String
+  owner             User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  emailAccountId    String
+  emailAccount      EmailAccount          @relation(fields: [emailAccountId], references: [id], onDelete: Cascade)
+  providerMessageId String
+  senderName        String?
+  senderEmail       String
+  subject           String
+  sourceText        String
+  description       String
+  quantity          Int                   @default(1)
+  material          String?
+  colour            String?
+  estimatedGrams    Float?
+  estimatedMinutes  Int?
+  missingFields     String[]
+  confidence        Int                   @default(0)
+  status            EmailQuoteDraftStatus @default(NEEDS_REVIEW)
+  quoteId           String?
+  quote             Quote?                @relation(fields: [quoteId], references: [id], onDelete: SetNull)
+  forwardedAt       DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+
+  @@unique([emailAccountId, providerMessageId])
+  @@index([ownerId, status])
+  @@index([senderEmail])
+}
+
+model Customer {
+  id               String              @id @default(cuid())
+  squareCustomerId String?             @unique
+  name             String
+  company          String?
+  email            String?
+  phone            String?
+  notes            String?
+  assignedToId     String?
+  assignedTo       User?               @relation("CustomerAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+  quotes           Quote[]
+  orders           Order[]
+  uploads          CustomerFile[]
+  conversations    Conversation[]
+  tasks            Task[]
+  payments         Payment[]
+  shipments        Shipment[]
+  portalTokens     PortalAccessToken[]
+  calendarEvents   CalendarEvent[]
+  aiStlDesigns     AiStlDesign[]
+  forgeProjects    ForgeProject[]
+
+  @@index([assignedToId])
+}
+
+model PortalAccessToken {
+  id             String    @id @default(cuid())
+  customerId     String
+  customer       Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  label          String?
+  tokenHash      String    @unique
+  encryptedToken String
+  expiresAt      DateTime?
+  revokedAt      DateTime?
+  lastUsedAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  @@index([customerId])
+}
+
+model CustomerFile {
+  id           String      @id @default(cuid())
+  customerId   String
+  customer     Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  originalName String
+  storageKey   String
+  mimeType     String?
+  bytes        Int
+  fileType     String
+  analysisJson Json?
+  createdAt    DateTime    @default(now())
+  quoteItems   QuoteItem[]
+}
+
+model Quote {
+  id              String            @id @default(cuid())
+  number          String            @unique
+  customerId      String
+  customer        Customer          @relation(fields: [customerId], references: [id])
+  status          QuoteStatus       @default(DRAFT)
+  currency        String            @default("CAD")
+  subtotalCents   Int               @default(0)
+  taxCents        Int               @default(0)
+  totalCents      Int               @default(0)
+  expiresAt       DateTime?
+  notes           String?
+  squareOrderId   String?
+  squareInvoiceId String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  items           QuoteItem[]
+  order           Order?
+  emailDrafts     EmailQuoteDraft[]
+}
+
+model QuoteItem {
+  id               String        @id @default(cuid())
+  quoteId          String
+  quote            Quote         @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  customerFileId   String?
+  customerFile     CustomerFile? @relation(fields: [customerFileId], references: [id])
+  description      String
+  quantity         Int           @default(1)
+  material         String?
+  colour           String?
+  estimatedGrams   Float?
+  estimatedMinutes Int?
+  unitPriceCents   Int
+  lineTotalCents   Int
+  baseCostCents    Int           @default(0)
+  markupPercent    Float         @default(13)
+  priceSource      String?
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  number          String          @unique
+  customerId      String
+  customer        Customer        @relation(fields: [customerId], references: [id])
+  quoteId         String?         @unique
+  quote           Quote?          @relation(fields: [quoteId], references: [id])
+  status          OrderStatus     @default(AWAITING_PAYMENT)
+  squareOrderId   String?
+  squareInvoiceId String?
+  squarePaymentId String?
+  totalCents      Int             @default(0)
+  paidCents       Int             @default(0)
+  dueDate         DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  jobs            ProductionJob[]
+  payments        Payment[]
+  shipments       Shipment[]
+}
+
+model Printer {
+  id        String          @id @default(cuid())
+  name      String
+  model     String?
+  active    Boolean         @default(true)
+  notes     String?
+  createdAt DateTime        @default(now())
+  jobs      ProductionJob[]
+}
+
+model ProductionJob {
+  id               String      @id @default(cuid())
+  orderId          String
+  order            Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  printerId        String?
+  printer          Printer?    @relation(fields: [printerId], references: [id])
+  status           OrderStatus @default(QUEUED)
+  estimatedMinutes Int?
+  actualMinutes    Int?
+  material         String?
+  colour           String?
+  gramsPlanned     Float?
+  gramsUsed        Float?
+  notes            String?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Material {
+  id             String                @id @default(cuid())
+  name           String
+  type           String
+  colour         String?
+  brand          String?
+  gramsOnHand    Float                 @default(0)
+  reorderAtGrams Float                 @default(500)
+  costPerKgCents Int                   @default(0)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  marketPrices   MaterialMarketPrice[]
+}
+
+model MaterialPriceSource {
+  id            String                @id @default(cuid())
+  name          String
+  sourceType    PriceSourceType       @default(MANUAL)
+  endpointUrl   String?
+  enabled       Boolean               @default(true)
+  currency      String                @default("CAD")
+  priceJsonPath String?
+  materialType  String?
+  brand         String?
+  spoolGrams    Float                 @default(1000)
+  lastCheckedAt DateTime?
+  lastError     String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  prices        MaterialMarketPrice[]
+}
+
+model MaterialMarketPrice {
+  id           String              @id @default(cuid())
+  sourceId     String
+  source       MaterialPriceSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  materialId   String?
+  material     Material?           @relation(fields: [materialId], references: [id], onDelete: SetNull)
+  materialType String
+  priceCents   Int
+  currency     String              @default("CAD")
+  spoolGrams   Float               @default(1000)
+  productUrl   String?
+  observedAt   DateTime            @default(now())
+
+  @@index([materialType, observedAt])
+  @@index([sourceId, observedAt])
+}
+
+model Conversation {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id])
+  subject    String?
+  status     String    @default("OPEN")
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  messages   Message[]
+}
+
+model Message {
+  id             String           @id @default(cuid())
+  conversationId String
+  conversation   Conversation     @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  channel        MessageChannel
+  direction      MessageDirection
+  body           String
+  providerId     String?
+  deliveryStatus String?
+  createdAt      DateTime         @default(now())
+}
+
+model IntegrationSetting {
+  id            String    @id @default(cuid())
+  provider      String    @unique
+  enabled       Boolean   @default(false)
+  encryptedJson String?
+  lastSyncAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model WebhookEvent {
+  id          String    @id
+  provider    String
+  eventType   String
+  payload     Json
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model Task {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus   @default(OPEN)
+  priority     TaskPriority @default(NORMAL)
+  dueAt        DateTime?
+  assignedToId String?
+  assignedTo   User?        @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdById  String?
+  createdBy    User?        @relation("CreatedTasks", fields: [createdById], references: [id], onDelete: SetNull)
+  customerId   String?
+  customer     Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+}
+
+model CalendarEvent {
+  id           String    @id @default(cuid())
+  title        String
+  description  String?
+  startAt      DateTime
+  endAt        DateTime?
+  allDay       Boolean   @default(false)
+  eventType    String    @default("GENERAL")
+  colour       String    @default("#6d5dfc")
+  customerId   String?
+  customer     Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdById  String?
+  createdBy    User?     @relation("CalendarEventCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  assignedToId String?
+  assignedTo   User?     @relation("CalendarEventAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([startAt])
+  @@index([assignedToId, startAt])
+  @@index([customerId, startAt])
+}
+
+model Expense {
+  id          String        @id @default(cuid())
+  vendor      String
+  category    String
+  description String?
+  amountCents Int
+  taxCents    Int           @default(0)
+  status      ExpenseStatus @default(DRAFT)
+  incurredAt  DateTime      @default(now())
+  receiptUrl  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Payment {
+  id          String        @id @default(cuid())
+  orderId     String
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customerId  String
+  customer    Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  provider    String        @default("MANUAL")
+  providerRef String?
+  amountCents Int
+  status      PaymentStatus @default(PENDING)
+  paidAt      DateTime?
+  notes       String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  orderId        String
+  order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customerId     String
+  customer       Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  carrier        String         @default("CANADA_POST")
+  service        String?
+  trackingNumber String?
+  labelUrl       String?
+  status         ShipmentStatus @default(DRAFT)
+  shippedAt      DateTime?
+  deliveredAt    DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+
+model TwoFactorCredential {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  encryptedSecret String
+  enabled         Boolean  @default(false)
+  verifiedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model RecoveryCode {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model TrustedDevice {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String   @unique
+  name       String?
+  userAgent  String?
+  ipAddress  String?
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  lastUsedAt DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model LoginAttempt {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email      String
+  successful Boolean
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([email, createdAt])
+  @@index([userId, createdAt])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  entityType String?
+  entityId   String?
+  summary    String
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}
+
+model BusinessSetting {
+  id                 String   @id @default("primary")
+  name               String   @default("Example 3D Printing")
+  email              String?
+  phone              String?
+  website            String?
+  address1           String?
+  city               String?
+  province           String?  @default("BC")
+  postalCode         String?
+  currency           String   @default("CAD")
+  taxRate            Float    @default(12)
+  quoteMarkupPercent Float    @default(13)
+  quotePrefix        String   @default("Q")
+  orderPrefix        String   @default("O")
+  invoiceTerms       String?
+  updatedAt          DateTime @updatedAt
+}
+
+model ForgeProject {
+  id             String   @id @default(cuid())
+  userId         String
+  customerId     String?
+  title          String
+  style          String
+  baseStyle      String
+  nameplateText  String?
+  instructions   String?
+  status         String   @default("DRAFT")
+  sourceImageKey String
+  sourceImageName String
+  sourceMimeType String
+  stlStorageKey  String?
+  previewImageKey String?
+  provider       String?
+  providerJobId  String?
+  errorMessage   String?
+  metadata       Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer   Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([customerId])
+  @@index([status])
+}
+
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  contactName String?
+  email       String?
+  phone       String?
+  website     String?
+  notes       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+}
+
+model PurchaseOrder {
+  id           String   @id @default(cuid())
+  number       String   @unique
+  supplierId   String
+  supplierName String
+  status       String   @default("DRAFT")
+  subtotalCents Int     @default(0)
+  taxCents     Int      @default(0)
+  totalCents   Int      @default(0)
+  expectedAt   DateTime?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([supplierId, createdAt])
+  @@index([status, createdAt])
+}
+
+model AutomationRule {
+  id          String   @id @default(cuid())
+  name        String
+  triggerType String
+  actionType  String
+  enabled     Boolean  @default(true)
+  conditions  Json?
+  actionConfig Json?
+  lastRunAt   DateTime?
+  lastError   String?
+  runCount    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PluginInstallation {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  category    String
+  version     String   @default("1.0.0")
+  enabled     Boolean  @default(false)
+  configuration Json?
+  installedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SupportTicket {
+  id          String   @id @default(cuid())
+  number      String   @unique
+  customerId  String?
+  customerName String?
+  subject     String
+  description String
+  priority    String   @default("NORMAL")
+  status      String   @default("OPEN")
+  assignedToId String?
+  assignedToName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status, priority, createdAt])
+  @@index([customerId, createdAt])
+}
+
+model PrinterConnector {
+  id          String   @id @default(cuid())
+  name        String
+  connectorType String
+  endpointUrl String?
+  apiKeyEncrypted String?
+  enabled     Boolean  @default(true)
+  status      String   @default("NOT_TESTED")
+  lastCheckedAt DateTime?
+  lastError   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model MarketplaceChannel {
+  id          String   @id @default(cuid())
+  name        String
+  channelType String
+  enabled     Boolean  @default(false)
+  configuration Json?
+  lastSyncAt  DateTime?
+  lastError   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TitanNotification {
+  id          String   @id @default(cuid())
+  userId      String?
+  title       String
+  message     String
+  severity    String   @default("INFO")
+  readAt      DateTime?
+  linkUrl     String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+
+model QualityInspection {
+  id             String   @id @default(cuid())
+  referenceType  String
+  referenceId    String?
+  referenceLabel String?
+  inspectorId    String?
+  inspectorName  String?
+  status         String   @default("PENDING")
+  score          Int?
+  checklist      Json?
+  notes          String?
+  photoUrl       String?
+  inspectedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([referenceType, referenceId])
+}
+
+model MaintenanceRecord {
+  id              String   @id @default(cuid())
+  assetType       String   @default("PRINTER")
+  assetId         String?
+  assetName       String
+  maintenanceType String
+  status          String   @default("SCHEDULED")
+  scheduledAt     DateTime?
+  completedAt     DateTime?
+  meterHours      Float?
+  costCents       Int      @default(0)
+  performedBy     String?
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, scheduledAt])
+  @@index([assetType, assetId])
+}
+
+model KnowledgeArticle {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  category    String   @default("GENERAL")
+  summary     String?
+  content     String
+  status      String   @default("DRAFT")
+  version     Int      @default(1)
+  authorId    String?
+  authorName  String?
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category, status])
+}
+
+model ServicePlan {
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  billingInterval  String   @default("MONTHLY")
+  priceCents       Int
+  includedHours    Float    @default(0)
+  discountPercent  Float    @default(0)
+  active            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model CustomerSubscription {
+  id             String   @id @default(cuid())
+  customerId     String
+  customerName   String
+  servicePlanId  String
+  servicePlanName String
+  status         String   @default("ACTIVE")
+  startedAt      DateTime @default(now())
+  renewsAt       DateTime?
+  cancelledAt    DateTime?
+  notes           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([customerId, status])
+  @@index([servicePlanId, status])
+}
+
+model ApiCredential {
+  id              String   @id @default(cuid())
+  name            String
+  keyPrefix       String
+  keyHash         String   @unique
+  encryptedKey    String
+  scopes          String[]
+  active          Boolean  @default(true)
+  expiresAt       DateTime?
+  lastUsedAt      DateTime?
+  createdById     String?
+  createdByName   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model WebhookEndpoint {
+  id              String   @id @default(cuid())
+  name            String
+  endpointUrl     String
+  events          String[]
+  secretEncrypted String?
+  active          Boolean  @default(true)
+  lastDeliveryAt  DateTime?
+  lastStatusCode  Int?
+  lastError       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model BackupSnapshot {
+  id            String   @id @default(cuid())
+  label         String
+  backupType    String   @default("FULL")
+  status        String   @default("REGISTERED")
+  storagePath   String
+  sizeBytes     BigInt?
+  checksum      String?
+  databaseOnly  Boolean  @default(false)
+  createdById   String?
+  createdByName String?
+  completedAt   DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+}
+
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}

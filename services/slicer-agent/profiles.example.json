@@ -1,0 +1,29 @@
+{
+  "x1c-0.4-0.20-standard": {
+    "printer": "Bambu Lab X1 Carbon",
+    "nozzleMm": 0.4,
+    "processName": "0.20mm Standard",
+    "filamentName": "Generic PLA",
+    "machine": "C:/TITAN-Bambu-Profiles/x1c-machine-full.json",
+    "process": "C:/TITAN-Bambu-Profiles/x1c-020-standard-full.json",
+    "filament": "C:/TITAN-Bambu-Profiles/generic-pla-full.json"
+  },
+  "p1s-0.4-0.20-standard": {
+    "printer": "Bambu Lab P1S",
+    "nozzleMm": 0.4,
+    "processName": "0.20mm Standard",
+    "filamentName": "Generic PLA",
+    "machine": "C:/TITAN-Bambu-Profiles/p1s-machine-full.json",
+    "process": "C:/TITAN-Bambu-Profiles/p1s-020-standard-full.json",
+    "filament": "C:/TITAN-Bambu-Profiles/generic-pla-full.json"
+  },
+  "a1-0.4-0.20-standard": {
+    "printer": "Bambu Lab A1",
+    "nozzleMm": 0.4,
+    "processName": "0.20mm Standard",
+    "filamentName": "Generic PLA",
+    "machine": "C:/TITAN-Bambu-Profiles/a1-machine-full.json",
+    "process": "C:/TITAN-Bambu-Profiles/a1-020-standard-full.json",
+    "filament": "C:/TITAN-Bambu-Profiles/generic-pla-full.json"
+  }
+}

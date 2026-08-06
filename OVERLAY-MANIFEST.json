@@ -1,0 +1,26 @@
+{
+  "name": "Project TITAN Cross-Platform GitHub Overlay",
+  "version": "1.0.0",
+  "targets": [
+    "Windows Docker Desktop x64",
+    "Ubuntu Docker",
+    "UGREEN Docker"
+  ],
+  "replaces": [
+    "Dockerfile",
+    "docker-compose.yml",
+    ".dockerignore",
+    ".env.example"
+  ],
+  "adds": [
+    "scripts/apply-cross-platform-fixes.mjs",
+    "install/install-common.sh",
+    "install/install-ubuntu.sh",
+    "install/install-ugreen.sh",
+    "install/install-windows.ps1",
+    ".github/workflows/validate-cross-platform.yml",
+    "CROSS-PLATFORM-INSTALL.md"
+  ],
+  "preserves_application_source": true,
+  "database_destructive": false
+}

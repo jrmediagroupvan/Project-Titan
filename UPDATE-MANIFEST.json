@@ -1,0 +1,33 @@
+{
+  "name": "Project TITAN",
+  "version": "4.2.0",
+  "codename": "Operation FORGE",
+  "channel": "stable",
+  "repository": "https://github.com/jrmediagroupvan/Project-Titan.git",
+  "branch": "main",
+  "preserves": [
+    ".env",
+    "uploads",
+    "storage",
+    "backups",
+    "database volumes"
+  ],
+  "validation": [
+    "UTF-8 source",
+    "local imports",
+    "Prisma",
+    "TypeScript",
+    "Next.js production build",
+    "unit tests"
+  ],
+  "updateStrategy": "staged clone, builder validation, deployment, health check, automatic rollback",
+  "branding": {
+    "animatedLogo": true,
+    "themes": [
+      "dark",
+      "light",
+      "system"
+    ],
+    "reducedMotion": true
+  }
+}

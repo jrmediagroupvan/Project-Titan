@@ -1,0 +1,105 @@
+name: project-titan
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: project-titan:local
+    container_name: titan-app
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "${TITAN_BIND_ADDRESS:-0.0.0.0}:${TITAN_PORT:-1200}:3000"
+    volumes:
+      - ./uploads:/app/uploads
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks: [titan]
+
+  updater:
+    build:
+      context: .
+      dockerfile: Dockerfile.updater
+    image: project-titan-updater:local
+    container_name: titan-updater
+    restart: unless-stopped
+    env_file: .env
+    working_dir: /project-titan
+    volumes:
+      - type: bind
+        source: .
+        target: /project-titan
+      - /var/run/docker.sock:/var/run/docker.sock
+    tmpfs:
+      - /tmp
+    networks: [titan]
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: titan-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: titan
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: titan
+    volumes:
+      - ${TITAN_DATA_DIR:-./storage}/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U titan -d titan"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [titan]
+
+  redis:
+    image: redis:8-alpine
+    container_name: titan-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ${TITAN_DATA_DIR:-./storage}/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [titan]
+
+  minio:
+    image: minio/minio:latest
+    container_name: titan-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - ${TITAN_DATA_DIR:-./storage}/minio:/data
+    ports:
+      - "${TITAN_BIND_ADDRESS:-0.0.0.0}:${MINIO_CONSOLE_PORT:-9001}:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [titan]
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: titan-searxng
+    restart: unless-stopped
+    profiles: ["free-search"]
+    volumes:
+      - ./config/searxng-settings.yml:/etc/searxng/settings.yml:ro
+    networks: [titan]
+
+networks:
+  titan:
+    driver: bridge

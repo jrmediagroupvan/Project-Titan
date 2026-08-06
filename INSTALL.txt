@@ -1,0 +1,24 @@
+PROJECT TITAN — AUTOMATIC VALIDATION INSTALLER v2
+
+Upload every file and folder from this patch to the matching path in your GitHub repository.
+
+This version includes all previous automatic validation files plus:
+- public/.gitkeep so GitHub preserves the public directory
+- Dockerfile protection that creates /app/public during every build
+- source validation that recreates public automatically if missing
+
+After uploading to GitHub, use on Ubuntu:
+
+cd ~/Project-Titan
+git pull origin main
+chmod +x install.sh install/*.sh scripts/*.sh
+sudo ./install.sh
+
+For a manual rebuild:
+
+cd ~/Project-Titan
+sudo docker compose build --no-cache app updater
+sudo docker compose up -d --force-recreate
+sudo docker compose ps
+
+Do not upload .env to GitHub.

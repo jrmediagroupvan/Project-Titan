@@ -1,0 +1,3 @@
+import Link from "next/link";
+import { loginAction } from "../actions";
+export default async function Login({searchParams}:{searchParams:Promise<{error?:string}>}){ const q=await searchParams; return <div className="loginWrap"><form action={loginAction} className="card loginCard"><div className="brand big">PROJECT <span>TITAN</span></div><p className="muted">Sign in to your business operating system.</p>{q.error&&<div className="alert">Invalid email or password.</div>}<label>Email<input name="email" type="email" required placeholder="admin@example.com"/></label><label>Password<input name="password" type="password" required/></label><button className="button">Sign in</button><Link href="/forgot-password" className="muted">Forgot your password?</Link></form></div> }

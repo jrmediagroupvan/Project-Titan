@@ -1,0 +1,4 @@
+FROM node:22-alpine
+RUN apk add --no-cache bash curl git docker-cli docker-cli-compose
+ENV HOME=/tmp
+CMD ["node","scripts/update-server.mjs"]

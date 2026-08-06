@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.next/
+validation-logs/
+backups/
+storage/
+uploads/*
+!uploads/.gitkeep
+*.tsbuildinfo
+.DS_Store

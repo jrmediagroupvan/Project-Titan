@@ -1,0 +1,61 @@
+{
+  "name": "project-titan",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && next build --webpack",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/unit/*.test.ts",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts",
+    "validate:prisma": "prisma validate && prisma generate",
+    "validate:types": "tsc --noEmit",
+    "validate:build": "next build --webpack",
+    "validate": "npm run check:encoding && npm run check:imports && npm run validate:prisma && npm run validate:types && npm run validate:build",
+    "check:encoding": "node scripts/check-source-encoding.mjs",
+    "check:imports": "node scripts/check-local-imports.mjs"
+  },
+  "dependencies": {
+    "@jscad/modeling": "^2.13.0",
+    "@jscad/stl-serializer": "^2.1.23",
+    "@prisma/client": "6.19.3",
+    "@types/three": "^0.185.1",
+    "bcryptjs": "^3.0.2",
+    "fflate": "^0.8.2",
+    "imapflow": "^1.6.5",
+    "jose": "^6.0.11",
+    "lucide-react": "^0.468.0",
+    "mailparser": "^3.9.14",
+    "next": "16.2.12",
+    "nodemailer": "^7.0.13",
+    "occt-import-js": "^0.0.23",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "recharts": "^3.1.2",
+    "square": "^45.0.1",
+    "three": "^0.185.1",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/mailparser": "^3.4.6",
+    "@types/node": "^22.15.30",
+    "@types/nodemailer": "^7.0.12",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "prisma": "6.19.3",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "postcss": "8.5.25",
+    "sharp": "0.35.3"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  }
+}

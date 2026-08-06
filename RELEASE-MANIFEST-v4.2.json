@@ -1,0 +1,18 @@
+{
+  "name": "Project TITAN Security & Mobile",
+  "version": "4.2.0",
+  "installerVersion": "1.0.0",
+  "features": [
+    "TOTP two-step verification",
+    "mandatory OWNER and ADMIN enrollment",
+    "hashed recovery codes",
+    "30-day trusted devices",
+    "login history",
+    "responsive hamburger navigation",
+    "true white light theme",
+    "animated TITAN branding",
+    "Prisma-before-TypeScript Docker build order",
+    "Webpack production build compatibility"
+  ],
+  "databaseMigration": "prisma/migrations/20260804173000_add_two_factor_security/migration.sql"
+}

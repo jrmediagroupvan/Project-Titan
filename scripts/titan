@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+ROOT="${TITAN_HOME:-/opt/project-titan}"
+[[ -d "$ROOT" ]] || ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+cd "$ROOT"
+case "${1:-help}" in
+ start) docker compose up -d ;;
+ stop) docker compose stop ;;
+ restart) docker compose restart ;;
+ status) docker compose ps ;;
+ logs) docker compose logs -f --tail=200 "${2:-app}" ;;
+ doctor) ./scripts/doctor.sh ;;
+ backup) ./scripts/backup.sh "${2:-}" ;;
+ restore) ./scripts/restore.sh "${2:-}" ;;
+ update) ./scripts/update.sh ;;
+ secrets) cat .install-secrets ;;
+ *) echo "Usage: titan {start|stop|restart|status|logs|doctor|backup|restore|update|secrets}" ;;
+esac

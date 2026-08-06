@@ -1,0 +1,13 @@
+.themeMenuRoot { position: relative; z-index: 100; }
+.themeMenuButton { display:inline-flex;min-height:42px;align-items:center;gap:8px;padding:0 13px;border:1px solid var(--titan-border);border-radius:13px;background:linear-gradient(180deg,var(--titan-surface-elevated),var(--titan-surface));color:var(--titan-text);box-shadow:var(--titan-shadow-sm);cursor:pointer;font:inherit;font-weight:750;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease; }
+.themeMenuButton:hover { transform:translateY(-1px);border-color:var(--titan-accent);box-shadow:0 0 0 3px var(--titan-accent-soft),var(--titan-shadow-md); }
+.themeMenuPanel { position:absolute;top:calc(100% + 10px);right:0;z-index:250;width:min(340px,calc(100vw - 28px));padding:10px;border:1px solid var(--titan-border);border-radius:18px;background:linear-gradient(160deg,var(--titan-surface-elevated),var(--titan-surface));color:var(--titan-text);box-shadow:var(--titan-shadow-lg);backdrop-filter:blur(20px);animation:titanMenuIn .15s ease-out; }
+.themeMenuTitle { padding:8px 10px 10px;color:var(--titan-muted);font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase; }
+.themeMenuOption { display:flex;width:100%;align-items:center;gap:11px;padding:11px 10px;border:0;border-radius:13px;background:transparent;color:inherit;cursor:pointer;text-align:left;transition:background .15s ease,transform .15s ease; }
+.themeMenuOption:hover { transform:translateX(2px);background:var(--titan-accent-soft); }
+.themeOptionIcon { display:grid;width:36px;height:36px;flex:0 0 auto;place-items:center;border:1px solid var(--titan-border);border-radius:11px;background:var(--titan-surface-elevated);color:var(--titan-accent);box-shadow:var(--titan-shadow-sm); }
+.themeOptionText { display:grid;flex:1;gap:2px; }
+.themeOptionText strong { font-size:14px; }
+.themeOptionText small { color:var(--titan-muted);font-size:11px;line-height:1.35; }
+@keyframes titanMenuIn { from { opacity:0;transform:translateY(-6px) scale(.98); } to { opacity:1;transform:translateY(0) scale(1); } }
+@media (max-width:640px) { .themeMenuButton span { display:none; } }

@@ -1,0 +1,23 @@
+{
+  "currency": "CAD",
+  "lastReviewed": "2026-07-30",
+  "defaultMarkupPercent": 13,
+  "defaultMachineHourlyRateCad": 3,
+  "defaultSetupFeeCad": 5,
+  "minimumQuoteCad": 10,
+  "materials": [
+    { "code": "PLA", "label": "PLA - Standard", "marketCostPerKgCad": 25.99, "wastePercent": 12 },
+    { "code": "PLA_MATTE", "label": "PLA - Matte", "marketCostPerKgCad": 25.99, "wastePercent": 12 },
+    { "code": "PLA_SILK", "label": "PLA - Silk", "marketCostPerKgCad": 29.99, "wastePercent": 15 },
+    { "code": "PLA_METAL", "label": "PLA - Metal Effect", "marketCostPerKgCad": 31.99, "wastePercent": 15 },
+    { "code": "PETG", "label": "PETG", "marketCostPerKgCad": 25.99, "wastePercent": 15 },
+    { "code": "ABS", "label": "ABS", "marketCostPerKgCad": 25.99, "wastePercent": 18 },
+    { "code": "ASA", "label": "ASA", "marketCostPerKgCad": 38.99, "wastePercent": 18 },
+    { "code": "TPU", "label": "TPU - Flexible", "marketCostPerKgCad": 44.99, "wastePercent": 20 },
+    { "code": "PETG_CF", "label": "PETG-CF - Carbon Fibre", "marketCostPerKgCad": 40.99, "wastePercent": 18 },
+    { "code": "PLA_CF", "label": "PLA-CF - Carbon Fibre", "marketCostPerKgCad": 40.99, "wastePercent": 18 },
+    { "code": "PC", "label": "PC - Polycarbonate", "marketCostPerKgCad": 44.99, "wastePercent": 20 },
+    { "code": "PA_CF", "label": "PA-CF - Nylon Carbon Fibre", "marketCostPerKgCad": 89.99, "wastePercent": 22 },
+    { "code": "PVA", "label": "PVA - Support Material", "marketCostPerKgCad": 69.99, "wastePercent": 20 }
+  ]
+}

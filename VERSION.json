@@ -1,0 +1,9 @@
+{
+  "product": "Project TITAN",
+  "displayVersion": "4.0",
+  "version": "4.0.0",
+  "build": "2026.08.06.2",
+  "codename": "Command Centre",
+  "securityMode": "Optional QR two-step verification",
+  "installerVersion": "1.0.0"
+}
